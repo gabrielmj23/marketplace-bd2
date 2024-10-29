@@ -34,12 +34,12 @@ def scrape_single(product_url: str):
 
     # Extract table features
     try:
-        rows = soup.find_all("tr", class_="andes-table__row")
+        rows = soup.select("tr.andes-table__row.ui-vpp-striped-specs__row")
 
         for row in rows:
             try:
-                key = row.find("div", class_="andes-table__header__container").text
-                value = str(row.find("span", class_="andes-table__column--value").text).strip()
+                key = row.select_one("div.andes-table__header__container").text
+                value = row.select_one("span.andes-table__column--value").text
             except:
                 continue
 
