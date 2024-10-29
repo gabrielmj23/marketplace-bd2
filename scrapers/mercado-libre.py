@@ -122,6 +122,16 @@ def scrape_data(should_rewrite: str):
                 # Extract basic data from card
                 title = post.find('h2').text
 
+                # Skip products with "servidor" or "Servidor" in the title
+                if "servidor" in title.lower():
+                    continue
+
+        
+                if post.find('div', class_='poly-component__shipping'):
+                    shipping = True
+                else:
+                    shipping = False
+
                 price = post.find('div', class_='poly-price__current').find('span', class_='andes-money-amount__fraction').text
                 
                 try:
@@ -139,6 +149,8 @@ def scrape_data(should_rewrite: str):
                 except:
                     img_url = post.find("img")["src"]
 
+                
+
                 # Extract specific data from product page
                 inner_data = scrape_single(post_url)
                 
@@ -153,7 +165,8 @@ def scrape_data(should_rewrite: str):
                     inner_data["disk"],
                     inner_data["ram"],
                     post_url,
-                    img_url
+                    img_url,
+                    shipping
                 )
 
                 # Add to csv

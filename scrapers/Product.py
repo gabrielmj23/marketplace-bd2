@@ -13,8 +13,9 @@ class Product:
     ram: str
     post_url: str
     img_url: str
+    free_shipping: bool
     
-    FIELD_NAMES = [ "title", "price", "rating", "seller_reputation", "brand", "cpu", "disk", "ram", "post_url", "img_url" ]
+    FIELD_NAMES = [ "title", "price", "rating", "seller_reputation", "brand", "cpu", "disk", "ram", "post_url", "img_url", "free_shipping" ]
 
     def to_dict(self):
         """Returns dictionary representation of a product"""
@@ -30,4 +31,5 @@ class Product:
             "ram": self.ram,
             "post_url": self.post_url,
             "img_url": self.img_url,
+            "free_shipping": self.free_shipping
         }
