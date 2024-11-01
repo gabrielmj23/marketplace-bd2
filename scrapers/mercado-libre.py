@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import re
 from Product import Product
 
 MERCADO_LIBRE_BASE_URL = "https://listado.mercadolibre.com.ve/computacion/pc-de-escritorio/computadoras/pc-de-escritorio"
@@ -9,7 +10,7 @@ MERCADO_LIBRE_OUTPUT_FILE = r"data/mercado_libre.csv"
 MAX_PRODUCTS = 48
 #MAX_PRODUCTS = 10000
 
-def scrape_single(product_url: str):
+def scrape_single(product_url: str, title: str):
     """
     Scrapes single product data from Mercado Libre product detail
     """
@@ -48,9 +49,29 @@ def scrape_single(product_url: str):
             elif key == "Tipo de procesador":
                 inner_data["cpu"] = value
             elif key == "Tamaño del disco duro":
-                inner_data["disk"] = value
+                inner_data["disk"] = value.replace(" ", "")
             elif key == "RAM":
-                inner_data["ram"] = value
+                inner_data["ram"] = value.replace(" ", "")
+
+        # Attempt to get values from title
+        if inner_data["brand"] == "none":
+            # Find first brand in title
+            for brand in Product.COMMON_BRANDS:
+                if brand.lower() in title.lower():
+                    inner_data["brand"] = brand
+                    break
+
+        if inner_data["disk"] == "none":
+            # Find segment of title that is made of 3 digits followed by GB, or 1 digit followed by TB
+            match = re.search(r'\b(\d{3}\s?GB|\d\s?TB)\b', title.upper())
+            if match:
+                inner_data["disk"] = match.group(0).replace(" ", "")
+
+        if inner_data["ram"] == "none":
+            # Similar logic to disk
+            match = re.search(r'\b(\d{2}\s?GB|\d\s?GB)\b', title.upper())
+            if match:
+                inner_data["ram"] = match.group(0).replace(" ", "")
     except:
         pass
 
@@ -150,9 +171,8 @@ def scrape_data(should_rewrite: str):
                     img_url = post.find("img")["src"]
 
                 
-
                 # Extract specific data from product page
-                inner_data = scrape_single(post_url)
+                inner_data = scrape_single(post_url, title)
                 
                 # Create instance
                 product = Product(

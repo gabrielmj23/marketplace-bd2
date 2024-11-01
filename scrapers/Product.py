@@ -17,6 +17,8 @@ class Product:
     
     FIELD_NAMES = [ "title", "price", "rating", "seller_reputation", "brand", "cpu", "disk", "ram", "post_url", "img_url", "free_shipping" ]
 
+    COMMON_BRANDS = [ "Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "Microsoft", "Samsung", "MSI", "Razer" ]
+
     def to_dict(self):
         """Returns dictionary representation of a product"""
 
