@@ -1,5 +1,5 @@
 # Scraping
-**Importante:** Crear el directorio `data/` antes de ejecutar los scripts
+**Importante:** Crear el directorio `data/` y los archivos `mercado_libre.csv` y `marketplace.csv` antes de ejecutar los scripts
 
 ## Mercado Libre
 Ejecutar `python scrapers/mercado-libre.py`
