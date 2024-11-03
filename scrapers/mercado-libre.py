@@ -1,14 +1,16 @@
-import requests
 from bs4 import BeautifulSoup
 import csv
 import re
 from Product import Product
+from Browser import Browser
 
 MERCADO_LIBRE_BASE_URL = "https://listado.mercadolibre.com.ve/computacion/pc-de-escritorio/computadoras/pc-de-escritorio"
 MERCADO_LIBRE_URL_SUFFIX = "_NoIndex_True"
 MERCADO_LIBRE_OUTPUT_FILE = r"data/mercado_libre.csv"
-MAX_PRODUCTS = 48
-#MAX_PRODUCTS = 10000
+# MAX_PRODUCTS = 48
+MAX_PRODUCTS = 100000
+
+browser = None
 
 def scrape_single(product_url: str, title: str):
     """
@@ -16,8 +18,8 @@ def scrape_single(product_url: str, title: str):
     """
     
     print(f"\nScraping single {product_url}")
-    response = requests.get(product_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    text = browser.get_response_text(product_url)
+    soup = BeautifulSoup(text, 'html.parser')
 
     inner_data = {
         "seller_reputation": "none",
@@ -77,7 +79,6 @@ def scrape_single(product_url: str, title: str):
 
     return inner_data
 
-
 def scrape_data(should_rewrite: str):
     """
     Scrapes computer data from Mercado Libre listing
@@ -109,20 +110,18 @@ def scrape_data(should_rewrite: str):
         if write_mode == "w":
             writer.writeheader()
         bool_should_rewrite = should_rewrite == "s"
-        has_printed_done = False
 
         for i, url in enumerate(urls):
             # Get the html of the page
-            response = requests.get(url)
-            soup = BeautifulSoup(response.text, 'html.parser')
-                
+            text = browser.get_response_text(url)
+            soup = BeautifulSoup(text, 'html.parser')
+            
             # Get all product items
             content = soup.find_all('li', class_='ui-search-layout__item')
             
             # Check if there's no content to scrape
             if not content:
-                print("\nDone scraping")
-                has_printed_done = True
+                print(f"No content: {url}")
                 break
 
             print(f"\nScraping page {i + 1} with url: {url}")
@@ -138,6 +137,7 @@ def scrape_data(should_rewrite: str):
                         break
                 
                 if is_included and not bool_should_rewrite:
+                    print(f"{post_url} is included")
                     continue
 
                 # Extract basic data from card
@@ -192,9 +192,13 @@ def scrape_data(should_rewrite: str):
                 # Add to csv
                 writer.writerow(product.to_dict())
 
-        if not has_printed_done:
-            print("\nDone scraping")
+        print("\nDone scraping")
 
 if __name__ == "__main__":
     should_rewrite = input("Reescribir csv? s/n: ")
+
+    print("=== INICIO DE SESIÓN")
+    email = input("Ingrese su correo de inicio en MercadoLibre: ")
+    browser = Browser(email)
+
     scrape_data(should_rewrite)
