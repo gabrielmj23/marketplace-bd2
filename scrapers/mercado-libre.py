@@ -153,7 +153,8 @@ def scrape_data(should_rewrite: str):
                 else:
                     shipping = False
 
-                price = post.find('div', class_='poly-price__current').find('span', class_='andes-money-amount__fraction').text
+                price = str(post.find('div', class_='poly-price__current').find('span', class_='andes-money-amount__fraction').text)
+                price = price.replace(".", "")
                 
                 try:
                     price_cents = post.find('div', class_='poly-price__current').find('span', class_='andes-money-amount__cents').text
