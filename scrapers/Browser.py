@@ -35,11 +35,11 @@ class Browser:
         login_button.click()
 
         # Wait for recaptcha
-        WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 90).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'iframe[title="reCAPTCHA"]'))
         )
         print("Resuelva el Captcha en pantalla")
-        time.sleep(30)
+        time.sleep(100)
 
         # Wait for challenges section
         WebDriverWait(driver, 10).until(
@@ -51,7 +51,7 @@ class Browser:
         gauth_button.click()
 
         # Wait for OTP input
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'div.validation__card'))
         )
 
@@ -64,7 +64,7 @@ class Browser:
         confirm_button.click()
 
         # Wait for login success
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'div.dynamic-access-card-item__item-description'))
         )
 

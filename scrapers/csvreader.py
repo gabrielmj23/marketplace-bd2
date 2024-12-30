@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Function to convert storage size to MB
-def convert_to_mb(size_str):
+def convert_to_mb(size_str: str):
     if size_str.endswith('MB'):
         return int(size_str[:-2])
     elif size_str.endswith('GB'):
@@ -15,8 +15,34 @@ def convert_to_mb(size_str):
     else:
         return None
     
+def output_product_data_to_sql(csv_file_path: str, sql_file_path: str):
+    with open(csv_file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        with open(sql_file_path, mode='w') as sql_file:
+            sql_file.write("DELETE FROM Product;\n")
+            for row in csv_reader:
+                try:
+                    rating = float(row['rating']) if row['rating'] and row['rating'].lower() != 'none' else 'NULL'
+                    seller_reputation = int(row['seller_reputation']) if row['seller_reputation'] and row['seller_reputation'].lower() != 'none' else 'NULL'
+                    brand = f"'{row['brand']}'" if row['brand'] else 'NULL'
+                    cpu = f"'{row['cpu']}'" if row['cpu'] else 'NULL'
+                    disk = convert_to_mb(row['disk']) if row['disk'] else 'NULL'
+                    ram = convert_to_mb(row['ram']) if row['ram'] else 'NULL'
+                    post_url = f"'{row['post_url']}'"
+                    img_url = f"'{row['img_url']}'"
+                    free_shipping = 'TRUE' if row['free_shipping'].lower() == 'true' else 'FALSE'
+
+                    sql_file.write(f'''
+                    INSERT INTO Product (title, price, rating, seller_reputation, brand, cpu, disk, ram, post_url, img_url, free_shipping)
+                    VALUES ('{row['title']}', {float(row['price'])}, {rating}, {seller_reputation}, {brand}, {cpu}, {disk}, {ram}, {post_url}, {img_url}, {free_shipping});
+                    ''')
+                except:
+                    continue
+
+    print("SQL statements have been written to", sql_file_path)
+    
 # Function to insert data into the Product table
-def insert_product_data(csv_file_path):
+def insert_product_data(csv_file_path: str):
     conn = psycopg2.connect(
         dbname=os.getenv('DB_NAME'),
         user=os.getenv('DB_USER'),
@@ -69,5 +95,7 @@ def insert_product_data(csv_file_path):
 
 # Main execution
 if __name__ == "__main__":
-    csv_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'data1.csv') #Change to real csv directory
-    insert_product_data(csv_file_path)
+    csv_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'mercado_libre_backup.csv') #Change to real csv directory
+    sql_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'out.sql') #Change to real csv directory
+    # insert_product_data(csv_file_path)
+    output_product_data_to_sql(csv_file_path, sql_file_path)
