@@ -13,7 +13,7 @@ def convert_to_mb(size_str: str):
     elif size_str.endswith('TB'):
         return int(size_str[:-2]) * 1024 * 1024
     else:
-        return None
+        return "NULL"
     
 def output_product_data_to_sql(csv_file_path: str, sql_file_path: str):
     with open(csv_file_path, mode='r') as file:
@@ -68,8 +68,8 @@ def insert_product_data(csv_file_path: str):
     with open(csv_file_path, mode='r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            rating = float(row['rating']) if row['rating'] and row['rating'].lower() != 'none' else None
-            seller_reputation = int(row['seller_reputation']) if row['seller_reputation'] and row['seller_reputation'].lower() != 'none' else None
+            rating = float(row['rating']) if row['rating'] and row['rating'].lower() != 'none' else 'NULL'
+            seller_reputation = int(row['seller_reputation']) if row['seller_reputation'] and row['seller_reputation'].lower() != 'none' else 'NULL'
 
             cursor.execute('''
                 INSERT INTO Product (title, price, rating, seller_reputation, brand, cpu, disk, ram, post_url, img_url, free_shipping)
@@ -79,10 +79,10 @@ def insert_product_data(csv_file_path: str):
                 float(row['price']),
                 rating,
                 seller_reputation,
-                row['brand'] if row['brand'] else None,
-                row['cpu'] if row['cpu'] else None,
-                convert_to_mb(row['disk']) if row['disk'] else None,
-                convert_to_mb(row['ram']) if row['ram'] else None,
+                row['brand'] if row['brand'] else "NULL",
+                row['cpu'] if row['cpu'] else "NULL",
+                convert_to_mb(row['disk']) if row['disk'] else "NULL",
+                convert_to_mb(row['ram']) if row['ram'] else "NULL",
                 row['post_url'],
                 row['img_url'],
                 row['free_shipping'].lower() == 'true'
@@ -95,7 +95,7 @@ def insert_product_data(csv_file_path: str):
 
 # Main execution
 if __name__ == "__main__":
-    csv_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'mercado_libre_backup.csv') #Change to real csv directory
+    csv_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'mercado_libre.csv') #Change to real csv directory
     sql_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'out.sql') #Change to real csv directory
     # insert_product_data(csv_file_path)
     output_product_data_to_sql(csv_file_path, sql_file_path)

@@ -52,7 +52,7 @@ class Browser:
 
         # Wait for OTP input
         WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'div.validation__card'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'input'))
         )
 
         # Input value received from terminal
@@ -60,7 +60,7 @@ class Browser:
         otp_inputs = driver.find_elements(By.CSS_SELECTOR, 'input.andes-form-control__field')
         for code_val, input_field in list(zip(otp_code, otp_inputs)):
             input_field.send_keys(code_val)
-        confirm_button = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"].code-confirm')
+        confirm_button = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
         confirm_button.click()
 
         # Wait for login success
